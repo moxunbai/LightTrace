@@ -6,11 +6,7 @@
 
 #include <vector>
 #include "Vector.hpp"
-
-
-
-class Camera
-{
+#include "global.hpp"
 
 
 /**
@@ -42,14 +38,14 @@ struct CameraSampleWeResult
  */
 struct CameraWePDFResult
 {
-    CameraWePDFResult(real pdf_pos, real pdf_dir) noexcept
+    CameraWePDFResult(float pdf_pos, float pdf_dir) noexcept
         : pdf_pos(pdf_pos), pdf_dir(pdf_dir)
     {
 
     }
 
-    real pdf_pos;
-    real pdf_dir;
+    float pdf_pos;
+    float pdf_dir;
 };
 
 /**
@@ -84,7 +80,7 @@ struct CameraSampleWiResult
         const Vector3f &nor_at_pos,
         const Vector3f &ref_to_pos,
         const Vector3f &we,
-        real pdf,
+        float pdf,
         const Vector2f &film_coord) noexcept
         : pos_on_cam(pos_on_cam),
           nor_at_pos(nor_at_pos),
@@ -100,12 +96,16 @@ struct CameraSampleWiResult
     Vector3f nor_at_pos; // lens normal
     Vector3f ref_to_pos; // from reference point to position on lens
     Vector3f we;     // initial importance function
-    real pdf = 0;     // pdf w.r.t. solid angle at ref
+    float pdf = 0;     // pdf w.r.t. solid angle at ref
     Vector2f film_coord;  // where on the film does this sample correspond to
 };
 
 inline const CameraSampleWiResult CAMERA_SAMPLE_WI_RESULT_INVALID =
     CameraSampleWiResult({}, {}, {}, {}, 0, {});
+class Camera
+{
+
+
 
 public:
 
@@ -118,8 +118,8 @@ public:
      *  and the coordinate range is [0, 1]^2
      * @param aperture_sam used to sample the aperture
      */
-    virtual CameraSampleWeResult sample_we(
-        const Vector2f &film_coord ) const noexcept = 0;
+//    virtual CameraSampleWeResult sample_we(
+//        const Vector2f &film_coord ) const noexcept = 0;
 
     /**
      * @brief eval we(pos_on_cam -> pos_to_out)
@@ -130,8 +130,8 @@ public:
     /**
      * @brief pdf of sample_we
      */
-    virtual CameraWePDFResult pdf_we(
-        const Vector3f &pos_on_cam, const Vector3f &pos_to_out) const noexcept = 0;
+//    virtual CameraWePDFResult pdf_we(
+//        const Vector3f &pos_on_cam, const Vector3f &pos_to_out) const noexcept = 0;
 
     /**
      * @brief sample camera wi
@@ -140,9 +140,11 @@ public:
         const Vector3f &ref ) const noexcept = 0;
 
     void apply_image_filter(
-              const Vector2f &pixel_range, real filter_radius,
+              const Vector2f &pixel_range, float filter_radius,
               const Vector2f &sample,std::vector<Vector3f> *image,Vector3f& texel );
 };
+
+
 /*
 
 void look_at(const Vector3f &eye, const Vector3f &dst, const Vector3f &up){

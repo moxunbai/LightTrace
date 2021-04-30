@@ -8,6 +8,7 @@
 
 extern const float  EPSILON;
 const float kInfinity = std::numeric_limits<float>::max();
+const float  Roughness =0.02f;
 
 inline float clamp(const float &lo, const float &hi, const float &v)
 { return std::max(lo, std::min(hi, v)); }

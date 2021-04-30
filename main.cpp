@@ -33,11 +33,11 @@ int main(int argc, char** argv)
     MeshTriangle right("../models/cornellbox/right.obj", green);
     MeshTriangle light_("../models/cornellbox/light.obj", light);
 
-    Material* sp1 = new Material(REFLECTION, Vector3f(0.0f));
+    Material* sp1 = new Material(MICROFACET, Vector3f(0.0f));
 	sp1->Kd  = Vector3f(0.725f, 0.71f, 0.68f);
     sp1->ior = 3.2f;
 
-    Material* sp2 = new Material(REFLECTION, Vector3f(0.0f));
+    Material* sp2 = new Material(MICROFACET, Vector3f(0.0f));
 	sp2->Kd  = Vector3f(0.725f, 0.71f, 0.68f);
     sp2->ior = 2.1f;
 	
@@ -62,8 +62,8 @@ int main(int argc, char** argv)
     Vector3f eye_pos(278, 273, -800);
     Vector3f dst(0, 0, 1);
     Vector3f up(0, 1, 0);
-    PinholeCamera pinholeCamera(eye_pos,dst,up,M_PI/2.0,1);
-    scene.setCamera(pinholeCamera);
+    PinholeCamera pinholeCamera(1.0f , eye_pos,dst,up,M_PI/2.0f , 1.0f);
+    scene.setCamera(&pinholeCamera);
     scene.buildBVH();
 
     Renderer r;

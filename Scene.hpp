@@ -40,7 +40,7 @@ public:
     void castLightRay(std::vector<Vector3f> *image) const;
 
     void sampleLight(Intersection &pos, float &pdf) const;
-    bool visible(const Vector3f &srcPoint,const Vector3f &tagPoint,);
+    bool visible(const Vector3f &srcPoint,const Vector3f &tagPoint);
     bool trace(const Ray &ray, const std::vector<Object*> &objects, float &tNear, uint32_t &index, Object **hitObject);
     std::tuple<Vector3f, Vector3f> HandleAreaLight(const AreaLight &light, const Vector3f &hitPoint, const Vector3f &N,
                                                    const Vector3f &shadowPointOrig,
@@ -51,7 +51,7 @@ public:
     std::vector<Object* > objects;
     std::vector<std::unique_ptr<Light> > lights;
     Camera *camera;
-    void setCamera(Camera *camera): camera(camera);
+    void setCamera(Camera *camera) ;
     // static std::mt19937  m_rng ;
 	// static float  get_random_v();
     // Compute reflection direction

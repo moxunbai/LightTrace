@@ -59,7 +59,7 @@ void worker(int j,float si,float scale ,const Scene &scene ,  std::vector<Vector
 
 void Renderer::Render(const Scene& scene)
 {
-    std::vector<Vector3f> framebuffer(scene.width * scene.height) ;
+   /* std::vector<Vector3f> framebuffer(scene.width * scene.height) ;
     // framebuffer.resize(scene.width * scene.height);
     float scale = tan(deg2rad(scene.fov * 0.5));
     float imageAspectRatio = scene.width / (float)scene.height;
@@ -80,9 +80,9 @@ void Renderer::Render(const Scene& scene)
         UpdateProgress(proc / (float)scene.height);
 
         sleep(5);
-    }
+    }*/
     
-
+    std::vector<Vector3f> framebuffer=  render_backward();
     std::cout << "Thread fun  run proc=:"<< proc   << std::endl;
 
     FILE* fp = fopen("binary.ppm", "wb");
@@ -131,7 +131,7 @@ std::vector<Vector3f> render_backward(){
                 }
                 total_particle_count += task_particle_count;
 
-                const real percent = real(100) * (task_id + 1)
+                const float percent = float(100) * (task_id + 1)
                                    /  particle_task_count;
                 std::lock_guard lk(reporter_mutex);
                 UpdateProgress( percent);
@@ -145,7 +145,7 @@ std::vector<Vector3f> render_backward(){
 
         for(auto &t : threads)
             t.join();
-        const real scale = scene.width * scene.height/ static_cast<real>(total_particle_count);
+        const float scale = scene.width * scene.height/ static_cast<float>(total_particle_count);
         std::vector<Vector3f> ret(scene.width * scene.height);
         for(auto &img : images){
           for(int i=0;i<scene.width * scene.height;i++)
@@ -153,5 +153,5 @@ std::vector<Vector3f> render_backward(){
 
         }
         ret = ret * scale;
-
+        return ret;
 }
