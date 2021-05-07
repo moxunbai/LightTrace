@@ -63,10 +63,15 @@ bool Scene::trace(
     return (*hitObject != nullptr);
 }
 
-bool Scene::visible(const Vector3f &srcPoint,const Vector3f &tagPoint){
+bool Scene::visible(const Vector3f &srcPoint,const Vector3f &tagPoint) const{
    Vector3f dir = tagPoint - srcPoint;
-  bool block = (Scene::intersect(Ray(srcPoint,dir.normalized())).coords-srcPoint).norm() > EPSILON;
-  return !block;
+  Intersection _inte = Scene::intersect(Ray(srcPoint,dir.normalized()));
+  if(!_inte.happened){
+      return  true;
+  }else{
+      return  false;
+  }
+
 }
 
 //  float Scene::get_random_v(){
@@ -82,18 +87,27 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
     
 }
 
-void Scene::lightTracing(std::vector<Vector3f> *image)
+void Scene::lightTracing(std::vector<Vector3f> *image) const
 {
+
     Intersection lightInter;
     float pdf_light;
+
     Scene::sampleLight(lightInter,pdf_light);
-    const Camera *camera = this->camera;
-    Vector3f wo = lightInter.m->sample( Vector3f(0.0) , lightInter.normal).normalized();
+
+    Camera *camera = this->camera;
+
+
+    Vector3f wo = lightInter.m->sample( Vector3f(0.0) , lightInter.normal);
+//Vector3f wo = Vector3f(0.0);
+
+    wo=wo.normalized();
 
     Vector3f coef =lightInter.emit  *dotProduct(wo,lightInter.normal) ;
     Ray ray = Ray(lightInter.coords, wo);
     for(int depth = 1; depth <= this->maxDepth; ++depth)
      {
+
         Intersection intersection = Scene::intersect(ray);
         if(!intersection.happened){
                 return  ;
@@ -115,10 +129,13 @@ void Scene::lightTracing(std::vector<Vector3f> *image)
                                                     * this->width;
               const float pixel_y = camera_sample.film_coord.y
                                                     * this->height;
-
-               camera->apply_image_filter(Vector2f(this->width,this->height) ,0.5f ,Vector2f(pixel_x,pixel_y) ,image , lDir);
+               Vector2f pixel_range(this->width,this->height);
+               Vector2f pixel_sample(pixel_x,pixel_y);
+//               std::cout << "Render DDDDDDDDD:  "<<camera_sample.film_coord.x<<"-----"<<camera_sample.film_coord.y <<"\n";
+               camera->apply_image_filter( pixel_range ,0.5f ,pixel_sample ,image , lDir);
            }
         }
+
         if(depth == 1){
            Vector3f epdir = lightInter.coords -  intersection.coords;
            coef = coef*dotProduct(-wo,intersection.normal)/dotProduct(epdir,epdir)*dotProduct(epdir,epdir) ;

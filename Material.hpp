@@ -122,9 +122,6 @@ private:
         float tanTheta2 = 1/cosTheta2 - 1;
         float root = m/(cosTheta2 * (m*m-tanTheta2));
         return root*root/M_PI;
-         
-        
-        
     }
     float smithG(const Vector3f& N, const Vector3f& wi, const Vector3f& wo, const Vector3f& harf){
         float m = Roughness;
@@ -223,28 +220,30 @@ Vector3f Material::getColorAt(double u, double v) {
  
 
 Vector3f Material::sample(const Vector3f &wi, const Vector3f &N){
+
     switch(m_type){
         case DIFFUSE:
         {
+
             // uniform sample on the hemisphere
             float x_1 = get_random_v(), x_2 = get_random_v();
             float z = std::fabs(1.0f - 2.0f * x_1);
             float r = std::sqrt(1.0f - z * z), phi = 2 * M_PI * x_2;
+
             Vector3f localRay(r*std::cos(phi), r*std::sin(phi), z);
+
             return toWorld(localRay, N);
             
             break;
         }
         case MICROFACET:
         {
+
            float x_1 = get_random_v(), x_2 = get_random_v();
             float z = std::fabs(1.0f - 2.0f * x_1);
             float r = std::sqrt(1.0f - z * z), phi = 2 * M_PI * x_2;
             Vector3f localRay(r*std::cos(phi), r*std::sin(phi), z);
             return toWorld(localRay, N);
-             
-           
-             
             break;
         }
     }

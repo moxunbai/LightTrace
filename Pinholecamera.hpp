@@ -3,10 +3,12 @@
 //
 
 #pragma once
-
-#include <vector>
-#include "Vector.hpp"
+#ifndef RAYTRACING_PINHOLECAMERA_H
+#define RAYTRACING_PINHOLECAMERA_H
 #include "Camera.hpp"
+//#include <vector>
+#include "Vector.hpp"
+
 
 #include "global.hpp"
 
@@ -43,12 +45,12 @@ class PinholeCamera : public Camera
     {
         const float aspect = params.film_aspect;
 
-        focal_film_height_ = 2 * params.focal_distance
+        focal_film_height_ =   params.focal_distance
                                * std::tan(params.fov / 2);
         focal_film_width_ = aspect * focal_film_height_;
 
         area_focal_film_ = focal_film_width_ * focal_film_height_;
-
+std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_film_height_ <<"\n";
 //        camera_to_world_ = FTransform3(
 //            FTrans4::look_at(
 //                params.pos, params.dst, params.up)).inv();
@@ -86,7 +88,7 @@ class PinholeCamera : public Camera
            Vector3f  _dir = pos_to_out ;
          if(_dir.z <= 0)
             return CAMERA_EVAL_WE_RESULT_ZERO;
-           Vector3f focal_film_pos = pos_ + (focal_distance_ / _dir.z) * _dir;
+           Vector3f focal_film_pos =   (focal_distance_ / _dir.z) * _dir;
            Vector2f film_coord(
                             float(0.5) - focal_film_pos.x / focal_film_width_,
                             float(0.5) + focal_film_pos.y / focal_film_height_
@@ -104,11 +106,10 @@ class PinholeCamera : public Camera
           Vector3f  _dir = (ref - pos_).normalized();
         if(_dir.z <= 0)
                     return CAMERA_SAMPLE_WI_RESULT_INVALID;
-          Vector3f focal_film_pos = pos_
-                                          + (focal_distance_ / _dir.z) * _dir;
+          Vector3f focal_film_pos =  (focal_distance_ / _dir.z) * _dir;
           Vector2f film_coord(
-                   float(0.5) - focal_film_pos.x / focal_film_width_,
-                   float(0.5) + focal_film_pos.y / focal_film_height_
+                   float(0.5) + focal_film_pos.x / focal_film_width_,
+                   float(0.5) - focal_film_pos.y / focal_film_height_
                );
           Vector3f ref_to_pos = pos_ - ref;
           Vector3f we = eval_we(pos_, -ref_to_pos.normalized()).we;
@@ -120,34 +121,42 @@ class PinholeCamera : public Camera
 
       void apply_image_filter(
           const Vector2f &pixel_range, float filter_radius,
-          const Vector2f &sample,std::vector<Vector3f> *image,Vector3f& texel )
+          const Vector2f &sample,std::vector<Vector3f> *image,Vector3f & texel ) override
       {
-          const int x_min = (std::max)(pixel_range.x,
+          const int x_min = (std::max)(0.0f,
                (std::ceil(sample.x - filter_radius - float(0.5))));
-          const int y_min = (std::max)(pixel_range.y,
+          const int y_min = (std::max)(0.0f,
                (std::ceil(sample.y - filter_radius - float(0.5))));
           const int x_max = (std::min)(pixel_range.x,
                (std::floor(sample.x + filter_radius - float(0.5))));
           const int y_max = (std::min)(pixel_range.y,
                (std::floor(sample.y + filter_radius - float(0.5))));
-
+//          std::cout << "apply_image_filter apply_image_filter: " <<y_max<<"  ----- "<<y_min<<"\n";
+//          std::cout << "apply_image_filter apply_image_filterx: " <<x_max<<"  ----- "<<x_min<<"---"<<sample.x<<"\n";
           float y_rel = std::abs(y_min + float(0.5) - sample.y);
+//           std::cout << "apply_image_filter y_rel: "<<y_rel <<"----"<<y_max<<"  ----- "<<y_min<<"\n";
           for(int y = y_min; y <= y_max; ++y)
           {
-               y_rel += 1;  ;
+//          std::cout << "Render YYYYYYY: " <<"\n";
+
               if(y_rel > filter_radius)
                   continue;
-
+              y_rel += 1;
               float x_rel = std::abs(x_min + float(0.5) - sample.x);
+//              std::cout << "Render x_rel: " <<x_rel<<"\n";
               for(int x = x_min; x <= x_max; ++x)
               {
-                   x_rel += 1;  ;
+
                   if(x_rel > filter_radius)
                       continue;
-                   int index = x*y;
+                   x_rel += 1;
+                   int index = x+y*784;
+//                   std::cout << "Render apply_image_filter: "<<index<<" ===== "<<texel<<"\n";
                    (*image)[index]  =(*image)[index]+   texel;
 
               }
           }
       }
 };
+
+#endif //RAYTRACING_PINHOLECAMERA_H

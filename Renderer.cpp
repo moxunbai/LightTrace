@@ -3,6 +3,8 @@
 //
 
 #include <thread>
+#include <atomic>
+#include <mutex>
 #include <fstream>
 #include "Scene.hpp"
 #include "Renderer.hpp"
@@ -82,7 +84,7 @@ void Renderer::Render(const Scene& scene)
         sleep(5);
     }*/
     
-    std::vector<Vector3f> framebuffer=  render_backward();
+    std::vector<Vector3f> framebuffer=  render_backward(scene);
     std::cout << "Thread fun  run proc=:"<< proc   << std::endl;
 
     FILE* fp = fopen("binary.ppm", "wb");
@@ -100,18 +102,21 @@ void Renderer::Render(const Scene& scene)
 std::vector<Vector3f> render_forward(){
 
 }
-std::vector<Vector3f> render_backward(){
+std::vector<Vector3f> Renderer::render_backward(const Scene& scene){
    std::mutex reporter_mutex;
    std::atomic<int> next_task_id = 0;
    const int worker_count = 100;
-   const int particle_task_count = 2000;
-   const int particles_per_task = 100;
+   const int particle_task_count = 5000;
+   const int particles_per_task = 300;
    std::atomic<uint64_t> total_particle_count = 0;
 
    std::vector<std::thread> threads;
    std::vector<std::vector<Vector3f>> images;
+
    threads.reserve(worker_count);
+
    images.resize(worker_count, std::vector<Vector3f>(scene.width * scene.height));
+
    auto backward_func =
             [&](  std::vector<Vector3f> *image, int i)
         {
@@ -127,31 +132,41 @@ std::vector<Vector3f> render_backward(){
                 for(int j = 0; j <  particles_per_task; ++j)
                 {
                     ++task_particle_count;
-                    scene.castLightRay(image)
+                    scene.lightTracing(image);
                 }
                 total_particle_count += task_particle_count;
 
-                const float percent = float(100) * (task_id + 1)
-                                   /  particle_task_count;
+                const float percent =   (task_id + 1)
+                                   /  (float)particle_task_count;
+//                std::cout << "Render PPPPPPPPPPP:  "<<task_id<<"\n";
                 std::lock_guard lk(reporter_mutex);
                 UpdateProgress( percent);
             }
         };
+
         for(int i = 0; i < worker_count; ++i)
         {
 
             threads.emplace_back(backward_func,  &images[i], i);
         }
 
-        for(auto &t : threads)
-            t.join();
+        for(auto &t : threads){
+          t.join();
+        }
+
         const float scale = scene.width * scene.height/ static_cast<float>(total_particle_count);
         std::vector<Vector3f> ret(scene.width * scene.height);
+
         for(auto &img : images){
-          for(int i=0;i<scene.width * scene.height;i++)
-          ret[i] = ret[i] + img[i];
+          for(int i=0;i<scene.width * scene.height;i++){
+            ret[i] = (ret[i] + img[i])*scale;
+//            ret[i] = (ret[i] + img[i]) ;
+//            std::cout << "Render PPPPPPPPPPP: \n";
+          }
+//std::cout << "Render DDDDDDDDD: \n";
 
         }
-        ret = ret * scale;
+
+//        ret = ret * scale;
         return ret;
 }

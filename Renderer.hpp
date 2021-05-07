@@ -16,6 +16,6 @@ class Renderer
 {
 public:
     void Render(const Scene& scene);
-
+    std::vector<Vector3f> render_backward(const Scene& scene)  ;
 private:
 };

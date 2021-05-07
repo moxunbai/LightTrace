@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#ifndef RAYTRACING_CAMERA_H
+#define RAYTRACING_CAMERA_H
 
 #include <vector>
 #include "Vector.hpp"
@@ -109,8 +111,9 @@ class Camera
 
 public:
 
-    virtual ~Camera() = default;
-
+//    virtual ~Camera() = default;
+    Camera() {}
+    virtual ~Camera() {}
     /**
      * @brief generate a ray
      *
@@ -139,22 +142,12 @@ public:
     virtual CameraSampleWiResult sample_wi(
         const Vector3f &ref ) const noexcept = 0;
 
-    void apply_image_filter(
+    virtual void apply_image_filter(
               const Vector2f &pixel_range, float filter_radius,
-              const Vector2f &sample,std::vector<Vector3f> *image,Vector3f& texel );
+              const Vector2f &sample,std::vector<Vector3f> *image,Vector3f& texel ) = 0;
+
+
 };
 
 
-/*
-
-void look_at(const Vector3f &eye, const Vector3f &dst, const Vector3f &up){
-  {
-      auto D = (dst - eye).normalized();
-      auto R = crossProduct(up, D).normalized();
-      auto U = crossProduct(D, R);
-      return self_t(R.x, U.x, D.x, eye.x,
-                    R.y, U.y, D.y, eye.y,
-                    R.z, U.z, D.z, eye.z,
-                    0, 0, 0, 1).inverse();
-  }
-}*/
+#endif //RAYTRACING_CAMERA_H
