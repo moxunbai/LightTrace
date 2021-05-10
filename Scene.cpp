@@ -102,28 +102,30 @@ void Scene::lightTracing(std::vector<Vector3f> *image) const
 //Vector3f wo = Vector3f(0.0);
 
     wo=wo.normalized();
+    Vector3f hitPoint = lightInter.coords;
+    Vector3f N = lightInter.normal;
+    Material *m = lightInter.m;
 
-    Vector3f coef =lightInter.emit  *dotProduct(wo,lightInter.normal) ;
+    Vector3f coef = lightInter.emit   /pdf_light ;
     Ray ray = Ray(lightInter.coords, wo);
-    for(int depth = 1; depth <= this->maxDepth; ++depth)
+    for(int depth = 0; depth <= this->maxDepth; ++depth)
      {
 
-        Intersection intersection = Scene::intersect(ray);
-        if(!intersection.happened){
-                return  ;
-        }
-        if(intersection.m->hasEmission()){
-                return  ;
-         }
-       auto camera_sample = camera->sample_wi( intersection.coords );
+       auto camera_sample = camera->sample_wi( hitPoint );
         if( camera_sample.we.norm()>0.0)
         {
-           if(Scene::visible(intersection.coords ,camera_sample.pos_on_cam )){
+           if(Scene::visible(hitPoint ,camera_sample.pos_on_cam )){
              Vector3f  dwo = camera_sample.ref_to_pos.normalized();
-             Vector3f lDir = intersection.m->eval(wo ,dwo ,intersection.normal)*coef;
-             if(depth == 1){
-               Vector3f epdir = lightInter.coords -  intersection.coords;
-               lDir = lDir*dotProduct(-wo,intersection.normal)/dotProduct(epdir,epdir);
+             Vector3f lDir =   coef*camera_sample.we* std::abs(dotProduct(dwo,N));
+             if(depth >0 ){
+               lDir =  m->eval(-wo ,dwo ,N)*lDir;
+               /*if(depth == 1){
+                 Vector3f epdir = lightInter.coords -  hitPoint;
+                 lDir = lDir*dotProduct(-wo,N)/dotProduct(epdir,epdir);
+                }*/
+//                if(depth >1 && m->getType() == DIFFUSE){
+//                   std::cout << "Render PPPPPPPPPPP: "<<camera_sample.we<<"---"<< m->eval(-wo ,dwo ,N)<<"\n";
+//                }
              }
               const float pixel_x = camera_sample.film_coord.x
                                                     * this->width;
@@ -136,28 +138,46 @@ void Scene::lightTracing(std::vector<Vector3f> *image) const
            }
         }
 
-        if(depth == 1){
-           Vector3f epdir = lightInter.coords -  intersection.coords;
-           coef = coef*dotProduct(-wo,intersection.normal)/dotProduct(epdir,epdir)*dotProduct(epdir,epdir) ;
+        Intersection intersection = Scene::intersect(ray);
+        if(!intersection.happened){
+                return  ;
         }
-        Material *m = intersection.m;
+        if(intersection.m->hasEmission()){
+                return  ;
+         }
+
+         wo = ray.direction.normalized();
+         hitPoint = intersection.coords;
+         m = intersection.m;
+         N = intersection.normal;
         Vector3f wi  ;
         float PD;
+
+        if(depth == 0){
+           Vector3f epdir = lightInter.coords -  hitPoint;
+           float distanc = dotProduct(epdir,epdir);
+           coef = coef*dotProduct(-wo,N)/distanc ;
+        }
         if(m->getType() == MICROFACET){
-           Vector3f f  = m->sample_F( -wo , intersection.normal,wi ,PD) ;
+           Vector3f f  = m->sample_F( -wo , N,wi ,PD) ;
            if(PD>0){
              wi = wi.normalized();
-             coef = coef* f*std::abs(dotProduct(wi , intersection.normal)) /PD;
-
+             coef = coef* f*std::abs(dotProduct(wi , N)) /PD;
+//             coef = Vector3f::Min(Vector3f::Max( coef,Vector3f(0.0f) ),Vector3f(1));
            }
         }else{
-                wi = m->sample( -wo , intersection.normal).normalized();
-                PD=m->pdf(-wo , wi , intersection.normal);
+                wi = m->sample( -wo , N).normalized();
+                PD=m->pdf(-wo , wi , N);
                 if(PD>0){
-                  coef = coef*  m->eval( -wo ,wi , intersection.normal)*std::abs(dotProduct(wi , intersection.normal)) /PD;
+                  coef = coef*  m->eval( -wo ,wi , N)*std::abs(dotProduct(wi , N)) /PD;
+
                 }
+
         }
-        ray = Ray(intersection.coords, wi);
+//        if(depth > 0){
+//          wo = wi;
+//        }
+        ray = Ray(hitPoint, wi);
      }
 
 }

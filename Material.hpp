@@ -322,57 +322,6 @@ Vector3f Material::sample_F(const Vector3f &wo, const Vector3f &N ,  Vector3f &w
 			}
 }
 
-// Vector3f Material::sample_F000(const Vector3f &wo, const Vector3f &N ,   float & Pd )
-// {
-//     // uniform sample on the hemisphere
-//             float Xi1 = get_random_v(), Xi2 = get_random_v();
-//             float alpha = Roughness;
-// 			// theta
-// 	        const auto cos2Theta = (1 - Xi1) / ((alpha*alpha - 1)*Xi1 + 1);
-// 	        const auto cosTheta = sqrt(cos2Theta);
-// 	        const auto sinTheta = sqrt(1 - cos2Theta);
-			
-// 			// phi
-// 	        const auto phi = 2 * M_PI * Xi2;
-	
-//             Vector3f localRay(sinTheta*std::cos(phi), sinTheta*std::sin(phi), cosTheta);
-//             Vector3f h =  toWorld(localRay, N);
-//             float fr = fresnel(wo, h, this->ior);
-// 	        bool isReflect = get_random_v() < fr;
-// 	        if (isReflect) {
-// 				Vector3f wi =  reflect(-wo, h);
-// 		        if (dotProduct(wo , N )*dotProduct(wi , N )<=0) {
-// 			    //    std::cout << "sample =0: \n";
-//                     Pd = 0 ;
-// 			        return Vector3f(0.f);
-// 		        }
-//                 float Dh = getGGX_D(N , h);
-//                 Pd = Dh*dotProduct(h , N )/(4.f*fabs(dotProduct(wo,h))) *fr;
-// 				return wi;
-// 			}else{
-// 				float etai = 1.f, etat = ior;  
-// 				Vector3f wi(0.f);
-// 		        if (dotProduct(wo , N )>0.f) {
-// 			      wi =  refract(-wo, h, etai / etat);
-// 		        }
-// 		        else {
-// 			      std::swap(etai, etat);
-// 			      wi =  refract(-wo, -h, etai / etat);
-// 		        }
-
-// 		        if (dotProduct(wo , N )*dotProduct(wi , N )>0.f || wi.norm()==0) {
-// 		         Pd=0.f;
-// 			     return Vector3f(0.f);
-// 		        }
-//                 float Dh = getGGX_D(N ,h);
-//                 float HoWo = dotProduct(h,wo);
-// 	        	float HoWi = dotProduct(h,wi);
-// 	        	float sqrtDenom = etai * HoWo + etat * HoWi;
-//                 float dwh_dwi = (etat * etat * fabsf(HoWi)) / (sqrtDenom * sqrtDenom);
-//                 Pd = Dh*dotProduct(h , N )*dwh_dwi*(1-fr);
-// 				return wi;
-// 			}
-// }
 
 float Material::pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
     switch(m_type){
@@ -387,36 +336,7 @@ float Material::pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
         }
         case MICROFACET:
         {
-            // float m = Roughness;
-            // float dwh_dwi;
-            // float cosalpha = dotProduct(N, wo);
-            // float cosab = dotProduct(N, wi);
-            // Vector3f harf = Vector3f(0.0,0.0,0.0);
-            // bool isReflect = cosalpha*cosab > 0.0f;
-            // if (isReflect) {
-            //     harf =(wi + wo).normalized();
-            //     dwh_dwi = 1.0f/(4.0f*dotProduct(wi,N));
-            // }else{
-            //     float etai = 1.f, etat = this->ior;
-            //     if(cosab>0.0f){
-            //         std::swap(etai, etat);
-                    
-            //     }
-            //     harf =-(etai * wo + etat * wi).normalized();
-            //     float HoWo = dotProduct(harf,wo);
-		    //     float HoWi = dotProduct(harf,wi);
-		    //     float sqrtDenom = etai * HoWo + etat * HoWi;
-            //     dwh_dwi = (etat * etat * fabs(HoWi)) / (sqrtDenom * sqrtDenom);
-            // }
-            
-            
-            // float Dh = getGGX_D(N , harf);
 
-	        // float fr = fresnel(wo, harf, this->ior);
-
-	        // return Dh *dotProduct(N,harf) * dwh_dwi * (isReflect ? fr : 1 - fr);
-
-            // uniform sample probability 1 / (2 * PI)
             if (dotProduct(wo, N) > 0.0f)
                 return 0.5f / M_PI;
             else
