@@ -28,6 +28,7 @@ class PinholeCamera : public Camera
 
     float lens_radius_ = 0;
     float focal_distance_ = 1;
+    float scale_ = 1;
 
     struct Params
     {
@@ -36,6 +37,7 @@ class PinholeCamera : public Camera
         Vector3f dst;
         Vector3f up;
         float fov            = 0;
+        float scale            = 0;
 //        float lens_radius    = 0;
         float focal_distance = 0;
 
@@ -54,7 +56,7 @@ std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_fi
 //        camera_to_world_ = FTransform3(
 //            FTrans4::look_at(
 //                params.pos, params.dst, params.up)).inv();
-
+        scale_=params.scale;
         pos_ = params.pos;
         dir_ = (params.dst - params.pos).normalized();
 
@@ -66,13 +68,14 @@ std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_fi
         PinholeCamera(
                float film_aspect,
                const Vector3f &pos, const Vector3f &dst, const Vector3f &up,
-               float fov,   float focal_distance)
+               float fov,   float focal_distance ,float scale)
            {
                params_.film_aspect    = film_aspect;
                params_.pos            = pos;
                params_.dst            = dst;
                params_.up             = up;
                params_.fov            = fov;
+               params_.scale            = scale;
 //               params_.lens_radius    = lens_radius;
                params_.focal_distance = focal_distance;
                init_from_params(params_);
@@ -90,8 +93,8 @@ std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_fi
             return CAMERA_EVAL_WE_RESULT_ZERO;
            Vector3f focal_film_pos =   (focal_distance_ / _dir.z) * _dir;
            Vector2f film_coord(
-                            float(0.5) -  2*focal_film_pos.x / focal_film_width_,
-                            float(0.5) -  2*focal_film_pos.y / focal_film_height_
+                            float(0.5) -  1.5*focal_film_pos.x / (focal_film_width_),
+                            float(0.5) -  1.5*focal_film_pos.y / (focal_film_height_)
                         );
          const float cos_theta  = _dir.z;
          const float cos2_theta = cos_theta * cos_theta;
@@ -111,9 +114,11 @@ std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_fi
             std::cout << "Render focal_film_pos: "<<focal_film_pos <<"\n";
           }
 //          std::cout << "Render focal_film_pos: "<<focal_film_pos <<"\n";
+             float t =  focal_film_pos.x / ( focal_film_width_);
+              
           Vector2f film_coord(
-                   float(0.5) -   focal_film_pos.x / focal_film_width_,
-                   float(0.5) -   focal_film_pos.y / focal_film_height_
+                   float(0.5) -   1.5*focal_film_pos.x / ( focal_film_width_),
+                   float(0.5) -   1.5*focal_film_pos.y / ( focal_film_height_)
                );
           Vector3f ref_to_pos = pos_ - ref;
           Vector3f we = eval_we(pos_, -ref_to_pos.normalized()).we;
@@ -155,7 +160,10 @@ std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_fi
                       continue;
                    x_rel += 1;
                    int index = x+y*784;
-//                   std::cout << "Render apply_image_filter: "<<index<<" ===== "<<texel<<"\n";
+//                    if(x>=784||y>=784){
+// std::cout << "Render apply_image_filter: "<<x<<" ===== "<<y<<"  "<<sample.x<<" "<<sample.y <<"\n";
+//                    }
+                  
                    (*image)[index]  =(*image)[index]+   texel;
 
               }

@@ -131,7 +131,7 @@ void Scene::lightTracing(std::vector<Vector3f> *image) const
                                                     * this->width;
               const float pixel_y = camera_sample.film_coord.y
                                                     * this->height;
-               Vector2f pixel_range(this->width,this->height);
+               Vector2f pixel_range(this->width-1,this->height-1);
                Vector2f pixel_sample(pixel_x,pixel_y);
 //               std::cout << "Render DDDDDDDDD:  "<<camera_sample.film_coord.x<<"-----"<<camera_sample.film_coord.y <<"\n";
                camera->apply_image_filter( pixel_range ,0.5f ,pixel_sample ,image , lDir);

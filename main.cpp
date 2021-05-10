@@ -62,7 +62,7 @@ int main(int argc, char** argv)
     Vector3f eye_pos(278, 273, -800);
     Vector3f dst(0, 0, 1);
     Vector3f up(0, 1, 0);
-    PinholeCamera pinholeCamera(1.0f , eye_pos , dst , up ,M_PI/2.0f , 1.0f);
+    PinholeCamera pinholeCamera(1.0f , eye_pos , dst , up ,  M_PI / 2.0f , 1.0f,std::tan(40* M_PI / 180.0/2.0f));
     scene.setCamera(&pinholeCamera);
     scene.buildBVH();
 
