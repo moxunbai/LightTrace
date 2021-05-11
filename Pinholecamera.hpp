@@ -93,8 +93,8 @@ std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_fi
             return CAMERA_EVAL_WE_RESULT_ZERO;
            Vector3f focal_film_pos =   (focal_distance_ / _dir.z) * _dir;
            Vector2f film_coord(
-                            float(0.5) -  1.5*focal_film_pos.x / (focal_film_width_),
-                            float(0.5) -  1.5*focal_film_pos.y / (focal_film_height_)
+                            float(0.5) -  0.5*focal_film_pos.x / (scale_*focal_film_width_),
+                            float(0.5) -  0.5*focal_film_pos.y / (scale_*focal_film_height_)
                         );
          const float cos_theta  = _dir.z;
          const float cos2_theta = cos_theta * cos_theta;
@@ -117,8 +117,8 @@ std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_fi
              float t =  focal_film_pos.x / ( focal_film_width_);
               
           Vector2f film_coord(
-                   float(0.5) -   1.5*focal_film_pos.x / ( focal_film_width_),
-                   float(0.5) -   1.5*focal_film_pos.y / ( focal_film_height_)
+                   float(0.5) -   0.5*focal_film_pos.x / ( scale_*focal_film_width_),
+                   float(0.5) -   0.5*focal_film_pos.y / ( scale_*focal_film_height_)
                );
           Vector3f ref_to_pos = pos_ - ref;
           Vector3f we = eval_we(pos_, -ref_to_pos.normalized()).we;

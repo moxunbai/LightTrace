@@ -106,7 +106,7 @@ std::vector<Vector3f> Renderer::render_backward(const Scene& scene){
    std::mutex reporter_mutex;
    std::atomic<int> next_task_id = 0;
    const int worker_count = 100;
-   const int particle_task_count = 8000;
+   const int particle_task_count = 80000;
    const int particles_per_task = 200;
    std::atomic<uint64_t> total_particle_count = 0;
 
@@ -159,8 +159,8 @@ std::vector<Vector3f> Renderer::render_backward(const Scene& scene){
 std::cout << "Render scale: "<<scale<<"total_particle_count:"<<total_particle_count<<"\n";
         for(auto &img : images){
           for(int i=0;i<scene.width * scene.height;i++){
-//             ret[i] = scale*(ret[i] + img[i]) ;
-            ret[i] = (ret[i] + img[i]) ;
+            ret[i] = scale*(ret[i] + img[i]) ;
+            // ret[i] = (ret[i] + img[i]) ;
 //            std::cout << "Render PPPPPPPPPPP: \n";
            }
 //std::cout << "Render DDDDDDDDD: \n";
