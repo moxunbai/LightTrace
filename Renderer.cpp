@@ -159,16 +159,13 @@ std::vector<Vector3f> Renderer::render_backward(const Scene& scene){
 std::cout << "Render scale: "<<scale<<"total_particle_count:"<<total_particle_count<<"\n";
         for(auto &img : images){
           for(int i=0;i<scene.width * scene.height;i++){
+//             ret[i] = scale*(ret[i] + img[i]) ;
             ret[i] = (ret[i] + img[i]) ;
-//            ret[i] = (ret[i] + img[i]) ;
 //            std::cout << "Render PPPPPPPPPPP: \n";
-          }
+           }
 //std::cout << "Render DDDDDDDDD: \n";
 
         }
-        for(auto &p : ret){
-           p = p*scale;
-        }
-//        ret = ret * scale;
+
         return ret;
 }

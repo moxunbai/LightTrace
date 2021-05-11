@@ -99,6 +99,7 @@ void Scene::lightTracing(std::vector<Vector3f> *image) const
 
 
     Vector3f wo = lightInter.m->sample( Vector3f(0.0) , lightInter.normal);
+    float l_pdf_dir = lightInter.m->pdf(Vector3f(0.0)  , wo , lightInter.normal);
 //Vector3f wo = Vector3f(0.0);
 
     wo=wo.normalized();
@@ -106,7 +107,7 @@ void Scene::lightTracing(std::vector<Vector3f> *image) const
     Vector3f N = lightInter.normal;
     Material *m = lightInter.m;
 
-    Vector3f coef = lightInter.emit   /pdf_light ;
+    Vector3f coef = lightInter.emit   /pdf_light/l_pdf_dir ;
     Ray ray = Ray(lightInter.coords, wo);
     for(int depth = 0; depth <= this->maxDepth; ++depth)
      {
@@ -118,7 +119,7 @@ void Scene::lightTracing(std::vector<Vector3f> *image) const
              Vector3f  dwo = camera_sample.ref_to_pos.normalized();
              Vector3f lDir =   coef*camera_sample.we* std::abs(dotProduct(dwo,N));
              if(depth >0 ){
-               lDir =  m->eval(-wo ,dwo ,N)*lDir;
+               lDir =  m->eval(dwo ,-wo ,N)*lDir;
                /*if(depth == 1){
                  Vector3f epdir = lightInter.coords -  hitPoint;
                  lDir = lDir*dotProduct(-wo,N)/dotProduct(epdir,epdir);
