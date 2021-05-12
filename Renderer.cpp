@@ -107,7 +107,7 @@ std::vector<Vector3f> Renderer::render_backward(const Scene& scene){
    std::atomic<int> next_task_id = 0;
    const int worker_count = 100;
    const int particle_task_count = 80000;
-   const int particles_per_task = 200;
+   const int particles_per_task = 600;
    std::atomic<uint64_t> total_particle_count = 0;
 
    std::vector<std::thread> threads;

@@ -51,7 +51,7 @@ class PinholeCamera : public Camera
                                * std::tan(params.fov / 2);
         focal_film_width_ = aspect * focal_film_height_;
 
-        area_focal_film_ = focal_film_width_ * focal_film_height_;
+        area_focal_film_ = focal_film_width_ * focal_film_height_*params.scale*params.scale;
 std::cout << "Render focal_film_height_: " <<focal_film_width_<<"----"<<focal_film_height_ <<"\n";
 //        camera_to_world_ = FTransform3(
 //            FTrans4::look_at(
