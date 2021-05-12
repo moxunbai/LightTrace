@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	sp2->Kd  = Vector3f(0.725f, 0.71f, 0.68f);
     sp2->ior = 2.1f;
 	
-    Sphere leftBall(Vector3f(274,95,251),85,sp1);
+    Sphere leftBall(Vector3f(274,95,151),85,sp1);
 	Sphere rightBall(Vector3f(261,122,105),82,sp2);
 
     Sphere ball1(Vector3f(300,100,300),100,sp1);
